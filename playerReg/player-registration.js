@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    // Use the returned Riot API data for accurate gameName and tagLine
+    // Prepare the player data object to send to the backend
     const playerData = {
       fullName,
       riotID: `${riotData.gameName}#${riotData.tagLine}`, // Construct Riot ID from API
@@ -202,10 +202,33 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     console.log("Player Registered:", playerData);
 
-    messageDiv.textContent = "Player registered successfully!";
-    messageDiv.style.color = "green";
+    // Send the player data to the backend API
+    try {
+      const response = await fetch("http://localhost:5000/api/players", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(playerData),
+      });
 
-    form.reset();
-    setTimeout(() => (messageDiv.textContent = ""), 3000);
+      if (!response.ok) {
+        throw new Error("Failed to register player");
+      }
+
+      const data = await response.json();
+
+      // Show success message
+      messageDiv.textContent = "Player registered successfully!";
+      messageDiv.style.color = "green";
+
+      form.reset(); // Reset the form after successful submission
+
+      setTimeout(() => (messageDiv.textContent = ""), 3000); // Clear message after 3 seconds
+    } catch (error) {
+      console.error("Error submitting player:", error);
+      messageDiv.textContent = "Error registering player.";
+      messageDiv.style.color = "red";
+    }
   });
 });

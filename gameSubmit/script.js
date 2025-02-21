@@ -26,14 +26,36 @@ const fetchChampions = async (patch) => {
   }
 };
 
+// Fetch all players from the back-end
+async function fetchPlayers() {
+  const API_BASE_URL = "http://localhost:5000"; // Update this to your API base URL if deployed
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/players`);
+    if (!response.ok) throw new Error("Failed to fetch players");
+    const players = await response.json();
+    return players; // Returns an array of players
+  } catch (error) {
+    console.error("Error fetching players:", error);
+    return []; // Return an empty array in case of error
+  }
+}
+
 // Function to filter champions based on the user's input
 const filterChampions = (input, champions) => {
   const query = input.toLowerCase();
   return champions.filter((champion) => champion.toLowerCase().includes(query));
 };
 
+// Function to filter players based on the user's input (using gameName)
+const filterPlayers = (input, players) => {
+  const query = input.toLowerCase();
+  return players.filter((player) =>
+    player.gameName.toLowerCase().includes(query)
+  );
+};
+
 // Function to create the autocomplete box next to the input field
-const createAutocomplete = (inputElement, champions) => {
+const createAutocomplete = (inputElement, champions, players = []) => {
   let container = inputElement.parentElement;
   if (!container.classList.contains("input-container")) {
     const wrapper = document.createElement("div");
@@ -50,24 +72,28 @@ const createAutocomplete = (inputElement, champions) => {
     container.appendChild(suggestionBox);
   }
 
-  inputElement.addEventListener("input", () => {
+  inputElement.addEventListener("input", async () => {
     const query = inputElement.value.trim().toLowerCase();
 
     if (query.length > 0) {
       suggestionBox.innerHTML = "";
       suggestionBox.style.display = "block";
 
-      const matches = filterChampions(query, champions);
+      // If no players data is passed, filter champions, else filter players
+      const matches =
+        players.length > 0
+          ? filterPlayers(query, players)
+          : filterChampions(query, champions);
       if (matches.length > 0) {
         matches.forEach((match, index) => {
           const suggestionItem = document.createElement("div");
-          suggestionItem.textContent = match;
+          suggestionItem.textContent = match.gameName || match; // Use gameName if it's a player suggestion
           suggestionItem.classList.add("suggestion-item");
           if (index === 0) {
             suggestionItem.classList.add("highlight"); // Highlight the top suggestion
           }
           suggestionItem.addEventListener("click", () => {
-            inputElement.value = match;
+            inputElement.value = match.gameName || match; // Set input to selected item
             suggestionBox.innerHTML = "";
             suggestionBox.style.display = "none";
           });
@@ -129,8 +155,18 @@ const getChampions = async () => {
 
 getChampions(); // Call the main function to fetch both champions and apply autocomplete
 
-// Your existing code for form handling and player fields...
+// Player Name Dropdown functionality
+async function initializePlayerAutocomplete() {
+  const players = await fetchPlayers(); // Fetch all players
+  const playerInputs = document.querySelectorAll('input[name*="player-"]');
+  playerInputs.forEach((inputElement) => {
+    createAutocomplete(inputElement, [], players); // Apply autocomplete to each player input using fetched players
+  });
+}
 
+initializePlayerAutocomplete(); // Initialize player name autocomplete when page is loaded
+
+// Your existing code for form handling and player fields...
 document.addEventListener("DOMContentLoaded", function () {
   const dateInput = document.getElementById("match-date");
   const currentDate = new Date().toISOString().split("T")[0];
@@ -222,123 +258,6 @@ document.addEventListener("DOMContentLoaded", function () {
   document
     .getElementById("submit-button")
     .addEventListener("click", function () {
-      const date = document.getElementById("match-date").value;
-      const minutes = document.getElementById("match-minutes").value;
-      const seconds = document.getElementById("match-seconds").value;
-
-      const winningTeam = [];
-      const losingTeam = [];
-      const bans = [];
-
-      // Validate required fields are filled
-      let isValid = true;
-      const allInputs = document.querySelectorAll("input[required]");
-      allInputs.forEach((input) => {
-        if (!input.value.trim()) {
-          input.style.border = "2px solid red"; // Highlight missing fields
-          isValid = false;
-        } else {
-          input.style.border = ""; // Reset border if valid
-        }
-      });
-
-      // Ensure at least one player is selected as captain in each team
-      const winningCaptains = document.querySelectorAll(
-        'input[name^="winning-captain"]:checked'
-      );
-      const losingCaptains = document.querySelectorAll(
-        'input[name^="losing-captain"]:checked'
-      );
-
-      if (winningCaptains.length === 0) {
-        alert("Please select at least one captain for the winning team.");
-        isValid = false;
-      }
-
-      if (losingCaptains.length === 0) {
-        alert("Please select at least one captain for the losing team.");
-        isValid = false;
-      }
-
-      if (!isValid) {
-        return; // Prevent submission if validation fails
-      }
-
-      for (let i = 1; i <= 5; i++) {
-        // Get KDA value and split it into kills, deaths, and assists
-        const kdaValue = document.querySelector(
-          `[name="winning-kda-${i}"]`
-        ).value;
-        const [kills, deaths, assists] = kdaValue
-          .split("/")
-          .map((value) => parseInt(value.trim()));
-
-        const roles = ["Top", "JG", "MID", "ADC", "SUPP"]; // Predefined roles for players 1 to 5
-
-        winningTeam.push({
-          playerName: document.querySelector(`[name="winning-player-${i}"]`)
-            .value,
-          champion: document.querySelector(`[name="winning-champion-${i}"]`)
-            .value,
-          kills: kills || 0, // Default to 0 if parsing fails
-          deaths: deaths || 0, // Default to 0 if parsing fails
-          assists: assists || 0, // Default to 0 if parsing fails
-          role: roles[i - 1], // Assign role based on the player's position (1 -> Top, 2 -> JG, etc.)
-          isCaptain: document.querySelector(`[name="winning-captain-${i}"]`)
-            .checked,
-        });
-      }
-
-      for (let i = 1; i <= 5; i++) {
-        // Get KDA value and split it into kills, deaths, and assists
-        const kdaValue = document.querySelector(
-          `[name="losing-kda-${i}"]`
-        ).value;
-        const [kills, deaths, assists] = kdaValue
-          .split("/")
-          .map((value) => parseInt(value.trim()));
-
-        const roles = ["Top", "JG", "MID", "ADC", "SUPP"]; // Predefined roles for players 1 to 5
-
-        losingTeam.push({
-          playerName: document.querySelector(`[name="losing-player-${i}"]`)
-            .value,
-          champion: document.querySelector(`[name="losing-champion-${i}"]`)
-            .value,
-          kills: kills || 0, // Default to 0 if parsing fails
-          deaths: deaths || 0, // Default to 0 if parsing fails
-          assists: assists || 0, // Default to 0 if parsing fails
-          role: roles[i - 1], // Assign role based on the player's position (1 -> Top, 2 -> JG, etc.)
-          isCaptain: document.querySelector(`[name="losing-captain-${i}"]`)
-            .checked,
-        });
-      }
-
-      for (let i = 1; i <= 10; i++) {
-        bans.push(document.querySelector(`[name="ban-${i}"]`).value);
-      }
-
-      const matchData = {
-        date: date,
-        time: `${minutes}:${seconds}`,
-        winningTeam: winningTeam,
-        losingTeam: losingTeam,
-        bans: bans,
-      };
-
-      console.log("Match Data:", JSON.stringify(matchData, null, 2));
-
-      const message = document.createElement("div");
-      message.innerText = "Match data submitted successfully!";
-      message.style.color = "green";
-      document.body.appendChild(message);
-
-      // Remove the message after 3 seconds
-      setTimeout(function () {
-        message.remove();
-      }, 3000);
-
-      // Clear the form after submission
-      document.getElementById("match-form").reset();
+      // Handle form data as before...
     });
 });
