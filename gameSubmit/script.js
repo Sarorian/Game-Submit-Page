@@ -48,14 +48,17 @@ const filterChampions = (input, champions) => {
   return champions.filter((champion) => champion.toLowerCase().includes(query));
 };
 
-// Function to filter players based on the user's input (using gameName)
+// Function to filter players based on the user's input (using gameName or fullName)
 const filterPlayers = (input, players) => {
   const query = input.toLowerCase();
-  return players.filter((player) =>
-    player.gameName.toLowerCase().includes(query)
+  return players.filter(
+    (player) =>
+      player.gameName.toLowerCase().includes(query) ||
+      player.fullName.toLowerCase().includes(query)
   );
 };
 
+// Function to create the autocomplete box next to the input field
 // Function to create the autocomplete box next to the input field
 const createAutocomplete = (inputElement, champions, players = []) => {
   let container = inputElement.parentElement;
@@ -89,13 +92,14 @@ const createAutocomplete = (inputElement, champions, players = []) => {
       if (matches.length > 0) {
         matches.forEach((match, index) => {
           const suggestionItem = document.createElement("div");
-          suggestionItem.textContent = match.gameName || match; // Use gameName if it's a player suggestion
+          suggestionItem.textContent =
+            match.gameName || match.fullName || match; // Use gameName or fullName
           suggestionItem.classList.add("suggestion-item");
           if (index === 0) {
             suggestionItem.classList.add("highlight"); // Highlight the top suggestion
           }
           suggestionItem.addEventListener("click", () => {
-            inputElement.value = match.gameName || match; // Set input to selected item
+            inputElement.value = match.gameName || match.fullName || match; // Set input to selected item
             suggestionBox.innerHTML = "";
             suggestionBox.style.display = "none";
           });
@@ -325,6 +329,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
 
+      console.log("Winning Team:", winningTeam);
+
       // Collect data for losing team
       for (let i = 1; i <= 5; i++) {
         const kdaValue = document.querySelector(
@@ -360,6 +366,8 @@ document.addEventListener("DOMContentLoaded", function () {
         losingTeam: losingTeam,
         bans: bans,
       };
+
+      console.log("Losing Team:", losingTeam);
 
       // Send data to the backend to store it in the database
       try {
