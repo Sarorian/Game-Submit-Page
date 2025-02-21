@@ -198,15 +198,6 @@ document.addEventListener("DOMContentLoaded", async function () {
       tagLine: riotData.tagLine,
       puuid: riotData.puuid,
       favoriteChampion,
-      gamesPlayed: { wins: 0, losses: 0 },
-      championsPlayed: {},
-      rolesPlayed: {
-        top: { wins: 0, losses: 0 },
-        jg: { wins: 0, losses: 0 },
-        mid: { wins: 0, losses: 0 },
-        adc: { wins: 0, losses: 0 },
-        supp: { wins: 0, losses: 0 },
-      },
     };
 
     console.log("Player Registered:", playerData);
