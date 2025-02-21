@@ -1,3 +1,5 @@
+const myApiEndpoint = "http://localhost:5000";
+
 document.addEventListener("DOMContentLoaded", async function () {
   const form = document.getElementById("registration-form");
   const messageDiv = document.getElementById("message");
@@ -11,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   async function fetchPUUID(gameName, tagLine) {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/get-puuid?gameName=${encodeURIComponent(
+        `${myApiEndpoint}:5000/api/get-puuid?gameName=${encodeURIComponent(
           gameName
         )}&tagLine=${encodeURIComponent(tagLine)}`
       );
@@ -187,7 +189,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Send the player data to the backend API
     try {
-      const response = await fetch("http://localhost:5000/api/players", {
+      const response = await fetch(`${myApiEndpoint}:5000/api/players`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
