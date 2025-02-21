@@ -1,4 +1,4 @@
-const myApiEndpoint = "http://localhost:5000";
+const myApiEndpoint = "https://lobsterapi-f663d2b5d447.herokuapp.com";
 
 document.addEventListener("DOMContentLoaded", async function () {
   const form = document.getElementById("registration-form");
@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   async function fetchPUUID(gameName, tagLine) {
     try {
       const response = await fetch(
-        `${myApiEndpoint}:5000/api/get-puuid?gameName=${encodeURIComponent(
+        `${myApiEndpoint}/api/get-puuid?gameName=${encodeURIComponent(
           gameName
         )}&tagLine=${encodeURIComponent(tagLine)}`
       );
@@ -158,6 +158,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     const [gameName, tagLine] = riotID.split("#");
+    console.log(gameName, tagLine);
     if (!gameName || !tagLine) {
       messageDiv.textContent = "Invalid Riot ID format. Use 'Name#Tag'.";
       messageDiv.style.color = "red";
@@ -189,7 +190,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Send the player data to the backend API
     try {
-      const response = await fetch(`${myApiEndpoint}:5000/api/players`, {
+      const response = await fetch(`${myApiEndpoint}/api/players`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

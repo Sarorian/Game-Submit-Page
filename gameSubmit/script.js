@@ -1,4 +1,4 @@
-const myApi = "http://localhost:5000";
+const myApi = "https://lobsterapi-f663d2b5d447.herokuapp.com";
 
 // Fetch the current patch version
 const fetchPatch = async () => {
@@ -306,6 +306,8 @@ document.addEventListener("DOMContentLoaded", function () {
         return; // Prevent submission if validation fails
       }
 
+      const listOfRoles = ["top", "jg", "mid", "adc", "supp"];
+
       // Collect data for winning team
       for (let i = 1; i <= 5; i++) {
         const kdaValue = document.querySelector(
@@ -325,6 +327,7 @@ document.addEventListener("DOMContentLoaded", function () {
           assists: assists || 0,
           isCaptain: document.querySelector(`[name="winning-captain-${i}"]`)
             .checked,
+          role: listOfRoles[i - 1],
         });
       }
 
@@ -347,6 +350,7 @@ document.addEventListener("DOMContentLoaded", function () {
           assists: assists || 0,
           isCaptain: document.querySelector(`[name="losing-captain-${i}"]`)
             .checked,
+          role: listOfRoles[i - 1],
         });
       }
 
