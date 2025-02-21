@@ -1,3 +1,5 @@
+const myApi = "http://localhost:5000";
+
 // Fetch the current patch version
 const fetchPatch = async () => {
   const url = "https://ddragon.leagueoflegends.com/api/versions.json";
@@ -255,9 +257,142 @@ document.addEventListener("DOMContentLoaded", function () {
   createBanFields(10);
 
   // Handle form submission
+  // Handle form submission
   document
     .getElementById("submit-button")
-    .addEventListener("click", function () {
-      // Handle form data as before...
+    .addEventListener("click", async function () {
+      const date = document.getElementById("match-date").value;
+      const minutes = document.getElementById("match-minutes").value;
+      const seconds = document.getElementById("match-seconds").value;
+
+      const winningTeam = [];
+      const losingTeam = [];
+      const bans = [];
+
+      // Validate required fields are filled
+      let isValid = true;
+      const allInputs = document.querySelectorAll("input[required]");
+      allInputs.forEach((input) => {
+        if (!input.value.trim()) {
+          input.style.border = "2px solid red"; // Highlight missing fields
+          isValid = false;
+        } else {
+          input.style.border = ""; // Reset border if valid
+        }
+      });
+
+      // Ensure at least one player is selected as captain in each team
+      const winningCaptains = document.querySelectorAll(
+        'input[name^="winning-captain"]:checked'
+      );
+      const losingCaptains = document.querySelectorAll(
+        'input[name^="losing-captain"]:checked'
+      );
+
+      if (winningCaptains.length === 0) {
+        alert("Please select at least one captain for the winning team.");
+        isValid = false;
+      }
+
+      if (losingCaptains.length === 0) {
+        alert("Please select at least one captain for the losing team.");
+        isValid = false;
+      }
+
+      if (!isValid) {
+        return; // Prevent submission if validation fails
+      }
+
+      // Collect data for winning team
+      for (let i = 1; i <= 5; i++) {
+        const kdaValue = document.querySelector(
+          `[name="winning-kda-${i}"]`
+        ).value;
+        const [kills, deaths, assists] = kdaValue
+          .split("/")
+          .map((value) => parseInt(value.trim()));
+
+        winningTeam.push({
+          playerName: document.querySelector(`[name="winning-player-${i}"]`)
+            .value,
+          champion: document.querySelector(`[name="winning-champion-${i}"]`)
+            .value,
+          kills: kills || 0,
+          deaths: deaths || 0,
+          assists: assists || 0,
+          isCaptain: document.querySelector(`[name="winning-captain-${i}"]`)
+            .checked,
+        });
+      }
+
+      // Collect data for losing team
+      for (let i = 1; i <= 5; i++) {
+        const kdaValue = document.querySelector(
+          `[name="losing-kda-${i}"]`
+        ).value;
+        const [kills, deaths, assists] = kdaValue
+          .split("/")
+          .map((value) => parseInt(value.trim()));
+
+        losingTeam.push({
+          playerName: document.querySelector(`[name="losing-player-${i}"]`)
+            .value,
+          champion: document.querySelector(`[name="losing-champion-${i}"]`)
+            .value,
+          kills: kills || 0,
+          deaths: deaths || 0,
+          assists: assists || 0,
+          isCaptain: document.querySelector(`[name="losing-captain-${i}"]`)
+            .checked,
+        });
+      }
+
+      // Collect bans
+      for (let i = 1; i <= 10; i++) {
+        bans.push(document.querySelector(`[name="ban-${i}"]`).value);
+      }
+
+      // Create the match data object
+      const matchData = {
+        date: date,
+        time: `${minutes}:${seconds}`,
+        winningTeam: winningTeam,
+        losingTeam: losingTeam,
+        bans: bans,
+      };
+
+      // Send data to the backend to store it in the database
+      try {
+        const response = await fetch(`${myApi}/api/matches`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(matchData),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to submit match data");
+        }
+
+        const data = await response.json();
+
+        // Show success message
+        const message = document.createElement("div");
+        message.innerText = "Match data submitted successfully!";
+        message.style.color = "green";
+        document.body.appendChild(message);
+
+        // Remove the message after 3 seconds
+        setTimeout(() => {
+          message.remove();
+        }, 3000);
+
+        // Clear the form after submission
+        document.getElementById("match-form").reset();
+      } catch (error) {
+        console.error("Error submitting match:", error);
+        alert("Failed to submit match data.");
+      }
     });
 });
