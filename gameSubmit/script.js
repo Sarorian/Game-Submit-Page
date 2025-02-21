@@ -329,8 +329,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
 
-      console.log("Winning Team:", winningTeam);
-
       // Collect data for losing team
       for (let i = 1; i <= 5; i++) {
         const kdaValue = document.querySelector(
@@ -367,7 +365,8 @@ document.addEventListener("DOMContentLoaded", function () {
         bans: bans,
       };
 
-      console.log("Losing Team:", losingTeam);
+      console.log(matchData);
+      console.log(JSON.stringify(matchData));
 
       // Send data to the backend to store it in the database
       try {
