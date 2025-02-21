@@ -7,14 +7,25 @@ document.addEventListener("DOMContentLoaded", async function () {
   const API_BASE_URL =
     "https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id";
 
-  // Function to get API key from local storage
-  function getApiKey() {
-    return localStorage.getItem("riotApiKey");
-  }
+  // Function to fetch PUUID from the server
+  async function fetchPUUID(gameName, tagLine) {
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/get-puuid?gameName=${encodeURIComponent(
+          gameName
+        )}&tagLine=${encodeURIComponent(tagLine)}`
+      );
 
-  // Function to set API key (run once manually in the browser console)
-  function setApiKey(key) {
-    localStorage.setItem("riotApiKey", key);
+      if (!response.ok) {
+        throw new Error("Failed to retrieve PUUID");
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching PUUID:", error);
+      return null;
+    }
   }
 
   // Fetch latest patch version
@@ -128,34 +139,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     createAutocomplete(championInput, champions);
   }
 
-  // Fetch PUUID from Riot API using stored API key
-  async function fetchPUUID(gameName, tagLine) {
-    const API_KEY = getApiKey();
-    if (!API_KEY) {
-      console.error(
-        "API Key is missing. Set it using `localStorage.setItem('riotApiKey', 'YOUR_API_KEY');`"
-      );
-      messageDiv.textContent = "API Key is missing. Set it in local storage.";
-      messageDiv.style.color = "red";
-      return null;
-    }
-
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/${encodeURIComponent(gameName)}/${encodeURIComponent(
-          tagLine
-        )}?api_key=${API_KEY}`
-      );
-
-      if (!response.ok) throw new Error("Failed to fetch PUUID");
-      const data = await response.json();
-      return data; // Returns full Riot API response (puuid, gameName, tagLine)
-    } catch (error) {
-      console.error("Error fetching PUUID:", error);
-      return null;
-    }
-  }
-
   // Handle form submission
   form.addEventListener("submit", async function (event) {
     event.preventDefault();
@@ -182,10 +165,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     messageDiv.textContent = "Fetching PUUID...";
     messageDiv.style.color = "blue";
 
-    const riotData = await fetchPUUID(gameName, tagLine);
-    if (!riotData || !riotData.puuid) {
+    const dataFromRiot = await fetchPUUID(gameName, tagLine);
+    if (!dataFromRiot) {
       messageDiv.textContent =
-        "Failed to fetch PUUID. Please check your Riot ID.";
+        "Failed to fetch Player Data. Please check your Riot ID.";
       messageDiv.style.color = "red";
       return;
     }
@@ -193,10 +176,10 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Prepare the player data object to send to the backend
     const playerData = {
       fullName,
-      riotID: `${riotData.gameName}#${riotData.tagLine}`, // Construct Riot ID from API
-      gameName: riotData.gameName,
-      tagLine: riotData.tagLine,
-      puuid: riotData.puuid,
+      riotID: `${dataFromRiot.gameName}#${dataFromRiot.tagLine}`, // Construct Riot ID from API
+      gameName: dataFromRiot.gameName,
+      tagLine: dataFromRiot.tagLine,
+      puuid: dataFromRiot.puuid,
       favoriteChampion,
     };
 
