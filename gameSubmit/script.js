@@ -104,7 +104,6 @@ const createAutocomplete = (inputElement, champions) => {
 const getChampions = async () => {
   const patch = await fetchPatch(); // Get the patch version
   if (patch) {
-    // If patch is found
     const champions = await fetchChampions(patch); // Fetch champions using the patch version
 
     if (champions.length === 0) {
@@ -119,10 +118,16 @@ const getChampions = async () => {
     championInputs.forEach((inputElement) => {
       createAutocomplete(inputElement, champions); // Apply autocomplete to each champion input
     });
+
+    // Apply autocomplete for all ban input fields as well
+    const banInputs = document.querySelectorAll('input[name*="ban-"]');
+    banInputs.forEach((banInputElement) => {
+      createAutocomplete(banInputElement, champions); // Apply autocomplete to each ban input
+    });
   }
 };
 
-getChampions(); // Call the main function to fetch both
+getChampions(); // Call the main function to fetch both champions and apply autocomplete
 
 // Your existing code for form handling and player fields...
 
@@ -140,8 +145,6 @@ document.addEventListener("DOMContentLoaded", function () {
   function createPlayerFields(teamContainer, teamType, numPlayers) {
     // Clear any previous team data before adding new input fields
     teamContainer.innerHTML = "";
-
-    const roles = ["Top", "JG", "MID", "ADC", "SUPP"]; // Predefined roles for players 1 to 5
 
     for (let i = 1; i <= numPlayers; i++) {
       const playerDiv = document.createElement("div");
@@ -186,9 +189,6 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         });
       });
-
-      // Assign role based on player position (1 -> Top, 2 -> JG, etc.)
-      const role = roles[i - 1];
 
       // Append inputs to playerDiv
       playerDiv.appendChild(playerInput);
@@ -273,6 +273,8 @@ document.addEventListener("DOMContentLoaded", function () {
           .split("/")
           .map((value) => parseInt(value.trim()));
 
+        const roles = ["Top", "JG", "MID", "ADC", "SUPP"]; // Predefined roles for players 1 to 5
+
         winningTeam.push({
           playerName: document.querySelector(`[name="winning-player-${i}"]`)
             .value,
@@ -295,6 +297,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const [kills, deaths, assists] = kdaValue
           .split("/")
           .map((value) => parseInt(value.trim()));
+
+        const roles = ["Top", "JG", "MID", "ADC", "SUPP"]; // Predefined roles for players 1 to 5
 
         losingTeam.push({
           playerName: document.querySelector(`[name="losing-player-${i}"]`)
