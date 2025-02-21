@@ -55,46 +55,72 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   // Show autocomplete suggestions
-  function createAutocomplete(inputElement, champions) {
+  const createAutocomplete = (inputElement, champions) => {
+    let container = inputElement.parentElement;
+    if (!container.classList.contains("input-container")) {
+      const wrapper = document.createElement("div");
+      wrapper.classList.add("input-container");
+      inputElement.parentNode.insertBefore(wrapper, inputElement);
+      wrapper.appendChild(inputElement);
+      container = wrapper;
+    }
+
+    let suggestionBox = container.querySelector(".autocomplete-suggestions");
+    if (!suggestionBox) {
+      suggestionBox = document.createElement("div");
+      suggestionBox.classList.add("autocomplete-suggestions");
+      container.appendChild(suggestionBox);
+    }
+
     inputElement.addEventListener("input", () => {
-      const query = inputElement.value.trim();
-      suggestionBox.innerHTML = "";
+      const query = inputElement.value.trim().toLowerCase();
 
-      if (query.length === 0) {
-        suggestionBox.style.display = "none";
-        return;
-      }
+      if (query.length > 0) {
+        suggestionBox.innerHTML = "";
+        suggestionBox.style.display = "block";
 
-      const matches = filterChampions(query, champions);
-      if (matches.length > 0) {
-        matches.forEach((match) => {
-          const item = document.createElement("div");
-          item.textContent = match;
-          item.classList.add("suggestion-item");
-          item.addEventListener("click", () => {
-            inputElement.value = match;
-            suggestionBox.innerHTML = "";
-            suggestionBox.style.display = "none";
+        const matches = filterChampions(query, champions);
+        if (matches.length > 0) {
+          matches.forEach((match, index) => {
+            const suggestionItem = document.createElement("div");
+            suggestionItem.textContent = match;
+            suggestionItem.classList.add("suggestion-item");
+            if (index === 0) {
+              suggestionItem.classList.add("highlight"); // Highlight the top suggestion
+            }
+            suggestionItem.addEventListener("click", () => {
+              inputElement.value = match;
+              suggestionBox.innerHTML = "";
+              suggestionBox.style.display = "none";
+            });
+            suggestionBox.appendChild(suggestionItem);
           });
-          suggestionBox.appendChild(item);
-        });
+        } else {
+          suggestionBox.innerHTML = `<div class="suggestion-item no-match">No matches found</div>`;
+        }
       } else {
-        const noMatch = document.createElement("div");
-        noMatch.textContent = "No matches found";
-        noMatch.classList.add("suggestion-item", "no-match");
-        suggestionBox.appendChild(noMatch);
+        suggestionBox.style.display = "none";
       }
+    });
 
-      suggestionBox.style.display = "block";
+    inputElement.addEventListener("keydown", (e) => {
+      if (e.key === "Tab" && suggestionBox.style.display === "block") {
+        e.preventDefault(); // Prevent default tab behavior
+        const firstSuggestion = suggestionBox.querySelector(".suggestion-item");
+        if (firstSuggestion) {
+          inputElement.value = firstSuggestion.textContent; // Set input to top suggestion
+          suggestionBox.innerHTML = "";
+          suggestionBox.style.display = "none";
+        }
+      }
     });
 
     document.addEventListener("click", (e) => {
-      if (!suggestionBox.contains(e.target) && e.target !== inputElement) {
-        suggestionBox.innerHTML = "";
+      if (!container.contains(e.target)) {
         suggestionBox.style.display = "none";
       }
     });
-  }
+  };
 
   // Initialize champion autocomplete
   const champions = await fetchChampions();

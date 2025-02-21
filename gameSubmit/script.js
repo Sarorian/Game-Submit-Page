@@ -34,48 +34,68 @@ const filterChampions = (input, champions) => {
 
 // Function to create the autocomplete box next to the input field
 const createAutocomplete = (inputElement, champions) => {
-  const suggestionBox = document.createElement("div");
-  suggestionBox.classList.add("autocomplete-suggestions");
-  inputElement.parentNode.appendChild(suggestionBox); // Append to the input's parent (to align it)
+  let container = inputElement.parentElement;
+  if (!container.classList.contains("input-container")) {
+    const wrapper = document.createElement("div");
+    wrapper.classList.add("input-container");
+    inputElement.parentNode.insertBefore(wrapper, inputElement);
+    wrapper.appendChild(inputElement);
+    container = wrapper;
+  }
+
+  let suggestionBox = container.querySelector(".autocomplete-suggestions");
+  if (!suggestionBox) {
+    suggestionBox = document.createElement("div");
+    suggestionBox.classList.add("autocomplete-suggestions");
+    container.appendChild(suggestionBox);
+  }
 
   inputElement.addEventListener("input", () => {
-    const query = inputElement.value;
+    const query = inputElement.value.trim().toLowerCase();
 
-    // Only show the suggestions box if there's input
     if (query.length > 0) {
-      suggestionBox.style.display = "block"; // Show suggestion box
-      suggestionBox.innerHTML = ""; // Clear previous suggestions
+      suggestionBox.innerHTML = "";
+      suggestionBox.style.display = "block";
 
       const matches = filterChampions(query, champions);
-
       if (matches.length > 0) {
-        matches.forEach((match) => {
+        matches.forEach((match, index) => {
           const suggestionItem = document.createElement("div");
           suggestionItem.textContent = match;
           suggestionItem.classList.add("suggestion-item");
+          if (index === 0) {
+            suggestionItem.classList.add("highlight"); // Highlight the top suggestion
+          }
           suggestionItem.addEventListener("click", () => {
-            inputElement.value = match; // Set the input to the selected suggestion
-            suggestionBox.innerHTML = ""; // Clear the suggestions
-            suggestionBox.style.display = "none"; // Hide the suggestion box
+            inputElement.value = match;
+            suggestionBox.innerHTML = "";
+            suggestionBox.style.display = "none";
           });
           suggestionBox.appendChild(suggestionItem);
         });
       } else {
-        const noMatch = document.createElement("div");
-        noMatch.textContent = "No matches found";
-        noMatch.classList.add("suggestion-item");
-        suggestionBox.appendChild(noMatch);
+        suggestionBox.innerHTML = `<div class="suggestion-item no-match">No matches found</div>`;
       }
     } else {
-      suggestionBox.style.display = "none"; // Hide suggestion box if input is empty
+      suggestionBox.style.display = "none";
     }
   });
 
-  // Hide suggestions when clicking outside
+  inputElement.addEventListener("keydown", (e) => {
+    if (e.key === "Tab" && suggestionBox.style.display === "block") {
+      e.preventDefault(); // Prevent default tab behavior
+      const firstSuggestion = suggestionBox.querySelector(".suggestion-item");
+      if (firstSuggestion) {
+        inputElement.value = firstSuggestion.textContent; // Set input to top suggestion
+        suggestionBox.innerHTML = "";
+        suggestionBox.style.display = "none";
+      }
+    }
+  });
+
   document.addEventListener("click", (e) => {
-    if (!suggestionBox.contains(e.target) && e.target !== inputElement) {
-      suggestionBox.innerHTML = ""; // Clear suggestions
-      suggestionBox.style.display = "none"; // Hide suggestion box
+    if (!container.contains(e.target)) {
+      suggestionBox.style.display = "none";
     }
   });
 };
@@ -121,6 +141,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // Clear any previous team data before adding new input fields
     teamContainer.innerHTML = "";
 
+    const roles = ["Top", "JG", "MID", "ADC", "SUPP"]; // Predefined roles for players 1 to 5
+
     for (let i = 1; i <= numPlayers; i++) {
       const playerDiv = document.createElement("div");
       playerDiv.classList.add("player");
@@ -164,6 +186,9 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         });
       });
+
+      // Assign role based on player position (1 -> Top, 2 -> JG, etc.)
+      const role = roles[i - 1];
 
       // Append inputs to playerDiv
       playerDiv.appendChild(playerInput);
@@ -256,6 +281,7 @@ document.addEventListener("DOMContentLoaded", function () {
           kills: kills || 0, // Default to 0 if parsing fails
           deaths: deaths || 0, // Default to 0 if parsing fails
           assists: assists || 0, // Default to 0 if parsing fails
+          role: roles[i - 1], // Assign role based on the player's position (1 -> Top, 2 -> JG, etc.)
           isCaptain: document.querySelector(`[name="winning-captain-${i}"]`)
             .checked,
         });
@@ -278,6 +304,7 @@ document.addEventListener("DOMContentLoaded", function () {
           kills: kills || 0, // Default to 0 if parsing fails
           deaths: deaths || 0, // Default to 0 if parsing fails
           assists: assists || 0, // Default to 0 if parsing fails
+          role: roles[i - 1], // Assign role based on the player's position (1 -> Top, 2 -> JG, etc.)
           isCaptain: document.querySelector(`[name="losing-captain-${i}"]`)
             .checked,
         });

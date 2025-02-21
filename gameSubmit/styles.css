@@ -93,16 +93,16 @@ button:hover {
 /* Positioning and appearance of the autocomplete suggestion box */
 .autocomplete-suggestions {
   position: absolute;
-  border: 1px solid #ccc;
-  background-color: white;
-  width: 20%;
-
-  max-height: 100px; /* Reduced height for the suggestion box */
+  width: 100%; /* Match input field width */
+  max-height: 150px; /* Prevent overflow */
   overflow-y: auto;
-  z-index: 1000;
-  margin-top: 5px; /* Space between input and suggestion box */
+  background-color: white;
+  border: 1px solid #ccc;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  top: 69%; /* Places it right below the input field */
+  left: 0;
   display: none;
 }
 
@@ -141,9 +141,9 @@ div.player {
   margin-bottom: 10px;
 }
 
-/* Make the parent container relative for positioning */
 .input-container {
-  position: relative; /* Ensure the suggestion box is positioned below */
+  position: relative; /* Makes sure suggestions are placed relative to this container */
+  width: 100%;
 }
 
 /* Responsive Design - Media Queries */
