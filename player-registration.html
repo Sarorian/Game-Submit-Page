@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Player Registration</title>
+    <link rel="stylesheet" href="player-registration.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Player Registration</h1>
+      <form id="registration-form">
+        <label for="full-name">Full Name:</label>
+        <input type="text" id="full-name" name="full-name" required />
+
+        <label for="riot-id">Riot ID:</label>
+        <input type="text" id="riot-id" name="riot-id" required />
+
+        <label for="favorite-champion">Favorite Champion:</label>
+        <div class="input-container">
+          <input
+            type="text"
+            id="favorite-champion"
+            name="favorite-champion"
+            required
+          />
+          <div class="autocomplete-suggestions" id="champion-suggestions"></div>
+        </div>
+
+        <button type="submit">Register</button>
+      </form>
+      <div id="message"></div>
+    </div>
+    <script src="player-registration.js"></script>
+  </body>
+</html>

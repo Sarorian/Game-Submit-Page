@@ -1,0 +1,218 @@
+/* Ensure the body and html elements take up full height */
+html,
+body {
+  height: 100%; /* Ensure the page takes up the full height */
+  margin: 0; /* Remove default margin */
+}
+
+/* Basic Body Styling */
+body {
+  display: flex; /* Use flexbox for alignment */
+  flex-direction: column;
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
+  font-family: Arial, sans-serif; /* Set a clean font */
+  background-color: #f4f4f4; /* Light background for better contrast */
+  height: 100%; /* Ensure it fills the height of the viewport */
+  overflow: hidden; /* Prevent overflow */
+}
+
+/* Container for the Form */
+.container {
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  width: 100%;
+  max-width: 600px; /* Increase max-width for better visibility */
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for a modern look */
+  border: 1px solid #ddd; /* Subtle border */
+  overflow-y: auto; /* Allow scrolling if content exceeds height */
+}
+
+/* Headings */
+h1 {
+  font-size: 28px;
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+h2 {
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+/* Input Fields */
+input[type="date"],
+input[type="number"],
+input[type="text"],
+button {
+  padding: 10px;
+  margin-bottom: 15px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%; /* Make inputs take the full width */
+  box-sizing: border-box; /* Include padding in the element's total width */
+}
+
+/* Focus Styles */
+input[type="date"]:focus,
+input[type="number"]:focus,
+input[type="text"]:focus,
+button:focus {
+  outline: none;
+  border-color: #007bff; /* Blue border on focus */
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Subtle glow effect */
+}
+
+/* Submit Button Styling */
+button {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Container for Teams and Bans */
+#winning-team-container,
+#losing-team-container,
+#champion-bans {
+  margin-bottom: 20px;
+}
+
+/* Positioning and appearance of the autocomplete suggestion box */
+.autocomplete-suggestions {
+  position: absolute;
+  border: 1px solid #ccc;
+  background-color: white;
+  width: 20%;
+
+  max-height: 100px; /* Reduced height for the suggestion box */
+  overflow-y: auto;
+  z-index: 1000;
+  margin-top: -16px; /* Space between input and suggestion box */
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: none;
+}
+
+/* Each suggestion item */
+.suggestion-item {
+  padding: 8px; /* Smaller padding for suggestions */
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Hover effect for suggestions */
+.suggestion-item:hover {
+  background-color: #f5f5f5;
+}
+
+/* Message when no matches are found */
+.suggestion-item.no-match {
+  color: #888;
+  font-style: italic;
+  text-align: center;
+  padding: 8px; /* Smaller padding for no match message */
+}
+
+/* Styling for input containers in teams and bans */
+input[type="text"] {
+  width: calc(100% - 22px); /* Adjust input width with padding */
+  margin-right: 5px;
+}
+
+div.player {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* Make the parent container relative for positioning */
+.input-container {
+  position: relative; /* Ensure the suggestion box is positioned below */
+}
+
+/* Responsive Design - Media Queries */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px; /* Reduce padding on smaller screens */
+    max-width: 100%; /* Allow container to take full width on small screens */
+  }
+
+  h1 {
+    font-size: 24px; /* Slightly smaller heading */
+  }
+
+  h2 {
+    font-size: 16px; /* Slightly smaller subheadings */
+  }
+
+  input[type="date"],
+  input[type="number"],
+  input[type="text"],
+  button {
+    font-size: 14px; /* Smaller font size for inputs on mobile */
+  }
+
+  button {
+    padding: 12px; /* Increase button size for easier clicking on mobile */
+  }
+
+  /* Autocomplete Box */
+  .autocomplete-suggestions {
+    width: calc(
+      100% - 20px
+    ); /* Ensure the box takes up the width of the input with padding */
+  }
+
+  /* Player Inputs */
+  div.player {
+    flex-direction: column; /* Stack inputs vertically on small screens */
+  }
+
+  input[type="text"] {
+    width: 100%; /* Ensure player name input takes full width */
+    margin-right: 0; /* Remove margin for mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  /* For very small screens, like phones in portrait mode */
+  h1 {
+    font-size: 20px; /* Make heading smaller */
+  }
+
+  h2 {
+    font-size: 14px; /* Make subheading smaller */
+  }
+
+  input[type="date"],
+  input[type="number"],
+  input[type="text"],
+  button {
+    font-size: 12px; /* Smaller font size for smaller screens */
+  }
+
+  button {
+    padding: 10px; /* Adjust padding for small screens */
+  }
+
+  /* Ensure the autocomplete suggestion box takes full width */
+  .autocomplete-suggestions {
+    width: calc(100% - 20px);
+  }
+}
