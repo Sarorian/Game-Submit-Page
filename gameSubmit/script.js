@@ -30,9 +30,8 @@ const fetchChampions = async (patch) => {
 
 // Fetch all players from the back-end
 async function fetchPlayers() {
-  const API_BASE_URL = "http://localhost:5000"; // Update this to your API base URL if deployed
   try {
-    const response = await fetch(`${API_BASE_URL}/api/players`);
+    const response = await fetch(`${myApi}/api/players`);
     if (!response.ok) throw new Error("Failed to fetch players");
     const players = await response.json();
     return players; // Returns an array of players
